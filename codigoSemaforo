@@ -1,38 +1,61 @@
-/*
----------------------------------------------
-Enciende/Apaga un LED de forma proporcional
----------------------------------------------
-Programa que enciende proporcionalmente un LED cuando
- llega a su máximo punto de brillo comienza a apagarse
- proporcionalmente.
-Cosas de Mecatrónica y Tienda de Robótica
-*/
-//--------------------------------------------------
-//Declara puertos de entradas y salidas y variables
-//--------------------------------------------------
-int brillo = 0;  //Variable de brillo inicia en 0
-int variacion = 5<;  //Variable de incremento configurada de 5 en 5
-int led = 9;  //Pin donde se encuentra el LED, salida
-//------------------------------------
-//Funcion principal
-//------------------------------------
-void setup () // Se ejecuta cada vez que el Arduino se inicia
-{
- pinMode(led, OUTPUT) ; //Configurar el LED como una salida
+const int CAR_RED=12; //assign the car light
+const int CAR_YELLOW=11;
+const int CAR_GREEN=10;
+const int PED_RED=9; // asing the pedestrian light
+const int PED_GREEN=8;
+const int BUTTON = 2; // button pin
+int crossTime = 10000; //time alloyoud to cross
+unsigned long changeTime; //time since BUTTON pressed
+int state = LOW; //if is push button
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(CAR_RED,OUTPUT);
+  pinMode(CAR_YELLOW,OUTPUT);
+  pinMode(CAR_GREEN,OUTPUT);
+  pinMode(PED_RED,OUTPUT);
+  pinMode(PED_GREEN,OUTPUT);
+  pinMode(BUTTON,INPUT); // button on pin 2
+  //turn on the green light
+  digitalWrite(CAR_GREEN,HIGH);
+  digitalWrite(PED_RED,HIGH);
 }
-//------------------------------------
-//Funcion ciclicla
-//------------------------------------
-void loop () // Esta funcion se mantiene ejecutando
-{  // cuando este energizado el Arduino
- // Escritura analoga (PWM) en el LED escribo el valor de brillo
- analogWrite(led, brillo) ;
- // Incremento la variable brillo de 5 en 5
- brillo = brillo + variacion;
- // Nota: PWM ----> 0 - 255
- // Si el brillo es 0 o 255
- if (brillo == 0 || brillo == 255)
- variacion = -variacion;  //La variación se vuelve negativa
- delay (30) ; //Tiempo de incremento en el brillo
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  if (digitalRead(BUTTON)) //Change of state is button is pressed
+    state = HIGH;
+  if (state==HIGH && (millis()-changeTime)>crossTime) {
+    changeLight();
+    state = LOW;
+  }
 }
-//Fin programa
+
+void changeLight(){
+  digitalWrite(CAR_GREEN,LOW); //green off
+  digitalWrite(CAR_YELLOW,HIGH);  //yellow on
+  delay(2000); //wait 2 seconds
+  digitalWrite(CAR_YELLOW,LOW); //green off
+  digitalWrite(CAR_RED,HIGH);  //yellow on
+  delay(2000); //wait 2 seconds
+  digitalWrite(PED_RED,LOW); //green off
+  digitalWrite(PED_GREEN,HIGH);  //yellow on
+  delay(crossTime); //wait for 
+  for (int i=0; i<10; i++){
+    digitalWrite(PED_RED,HIGH);
+    delay(250);
+    digitalWrite(PED_GREEN,LOW);
+    delay(250);
+  }
+  digitalWrite(PED_RED,HIGH);
+  delay(500);
+  digitalWrite(CAR_YELLOW,HIGH);
+  digitalWrite(CAR_RED,LOW);
+  delay(1000);
+  digitalWrite(CAR_GREEN,HIGH);
+  digitalWrite(CAR_YELLOW,LOW);
+
+  //record the time size last change of lights
+  changeTime = millis();
+  //then return to the my program loop
+}
